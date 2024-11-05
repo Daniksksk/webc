@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Venta</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* Fondo claro */
+            color: #333; /* Color de texto oscuro */
+        }
+
+        .header {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #fff; /* Fondo claro para la fecha */
+            color: #000; /* Texto negro */
+            padding: 10px;
+            border-radius: 5px; /* Esquinas redondeadas */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .numero-venta {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #fff; /* Fondo claro para el número de venta */
+            color: #000; /* Texto negro */
+            padding: 10px;
+            border-radius: 5px; /* Esquinas redondeadas */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .customer-form {
+            width: 90%; /* Ancho completo para el formulario */
+            max-width: 600px; /* Ancho máximo para mejor diseño */
+            background-color: #fff; /* Fondo blanco para el formulario */
+            padding: 20px;
+            border-radius: 10px; /* Esquinas redondeadas */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+            margin-top: 60px; /* Espacio desde la parte superior */
+        }
+
+        .customer-form input, .customer-form select {
+            margin: 5px 0; /* Espacio entre entradas */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%; /* Ancho completo */
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-weight: bold; /* Texto en negrita */
+            background-color: #007BFF; /* Color del botón */
+            color: white; /* Color del texto del botón */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Color del botón al pasar el mouse */
+        }
+
+        .product-table {
+            margin-top: 20px;
+            width: 90%; /* Ancho de la tabla */
+            border-collapse: collapse;
+        }
+
+        .product-table th, .product-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .product-table th {
+            background-color: #f0f0f0; /* Fondo para encabezados */
+        }
+
+        .producto-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .producto-info img {
+            width: 10%; /* Ancho de la imagen */
+            height: auto; /* Altura automática */
+            display: none; /* Ocultar inicialmente */
+        }
+
+        .totales {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            width: 90%; /* Ancho de la sección de totales */
+        }
+    </style>
+</head>
+<body>
+    <div class="numero-venta">
+        <span>Número de Venta:</span>
+        <span id="numeroVenta">0</span>
+    </div>
+
+    <div class="header" id="dateTime"></div>
+
+    <div class="customer-form">
+        <h3>Datos del Cliente</h3>
+        <input type="text" id="nombre" placeholder="Nombre (ej. JUAN LOPEZ)" required>
+        
+        <input type="tel" id="telefono" placeholder="Teléfono (solo números)" required pattern="[0-9]*" maxlength="15">
+        <input type="email" id="email" placeholder="Email (ejemplo@dominio.com)" required>
+        <input type="text" id="direccion" placeholder="Dirección" required>
+        
+        <h3>Seleccionar Productos</h3>
+        <select id="opcion" onchange="actualizarProducto()">
+            <option value="">Seleccione un producto</option>
+            <option value="Google Pixel 8 Pro" data-precio="999" data-descripcion="Smartphone de alta gama de Google." data-imagen="IMGAN/gogle.webp">Google Pixel 8 Pro</option>
+            <option value="Honor Magic5 PRO 5G" data-precio="899" data-descripcion="Smartphone premium con tecnología 5G." data-imagen="IMGAN/magic.png">Honor Magic5 PRO 5G</option>
+            <option value="Xiaomi 13 ULTRA" data-precio="1099" data-descripcion="El último modelo de Xiaomi con cámara avanzada." data-imagen="IMGAN/xiaomi.jpg">Xiaomi 13 ULTRA</option>
+            <option value="Samsung Galaxy S23 ULTRA" data-precio="1199" data-descripcion="El mejor smartphone de Samsung con características premium." data-imagen="IMGAN/samsung.jpg">Samsung Galaxy S23 ULTRA</option>
+            <option value="OnePlus 11" data-precio="749" data-descripcion="Smartphone de alto rendimiento a un precio accesible." data-imagen="IMGAN/oneplus.jpg">OnePlus 11</option>
+        </select>
+        <input type="number" id="cantidad" placeholder="Cantidad" min="1" required onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+        <button type="button" onclick="agregarProducto()">Agregar Producto</button>
+
+        <div id="imagenProducto" class="producto-info">
+            <img id="imgProducto" src="" alt="Imagen del producto">
+            <div>
+                <p id="descripcionProducto"></p>
+                <p id="precioProducto"></p>
+            </div>
+        </div>
+
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Cantidad</th>
+                    <th style="width: 55%;">Descripción</th>
+                    <th style="width: 13%;">Precio Unitario (Bs)</th>
+                    <th style="width: 17%;">Importe Total (Bs)</th>
+                </tr>
+            </thead>
+            <tbody id="tablaProductos">
+                <!-- Aquí se agregarán las filas de productos -->
+            </tbody>
+        </table>
+
+        <div class="totales">
+            <div><strong>IVA (13%):</strong> <span id="ivaTotal">Bs 0.00</span></div>
+            <div><strong>Subtotal:</strong> <span id="subtotalTotal">Bs 0.00</span></div>
+            <div><strong>Total:</strong> <span id="totalFinal">Bs 0.00</span></div>
+        </div>
+        
+        <button id="guardarCliente" onclick="guardarCliente()">Guardar Cliente</button>
+    </div>
+
+    <script>
+        let totalImporte = 0; // Variable para almacenar el total de importes
+
+        function actualizarProducto() {
+            const opcion = document.getElementById('opcion');
+            const selectedOption = opcion.options[opcion.selectedIndex];
+            const precio = selectedOption.getAttribute('data-precio');
+            const descripcion = selectedOption.getAttribute('data-descripcion');
+            const imagen = selectedOption.getAttribute('data-imagen');
+
+            // Mostrar la descripción y el precio en la tabla
+            document.getElementById('descripcionProducto').innerText = descripcion;
+            document.getElementById('precioProducto').innerText = `Precio: Bs ${precio}`;
+            
+            // Mostrar la imagen del producto
+            const imgProducto = document.getElementById('imgProducto');
+            imgProducto.src = imagen;
+            imgProducto.style.display = 'block'; // Mostrar la imagen
+        }
+
+        function agregarProducto() {
+            const cantidad = document.getElementById('cantidad').value;
+            const opcion = document.getElementById('opcion');
+            const selectedOption = opcion.options[opcion.selectedIndex];
+            const producto = selectedOption.value;
+            const precio = selectedOption.getAttribute('data-precio');
+
+            if (producto && cantidad) {
+                const total = cantidad * precio;
+                totalImporte += total;
+                                // Crear una nueva fila en la tabla de productos
+                                const tablaProductos = document.getElementById('tablaProductos');
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.innerHTML = `
+                    <td>${cantidad}</td>
+                    <td>
+                        ${producto}
+                        <img src="${selectedOption.getAttribute('data-imagen')}" alt="${producto}" style="width: 50px; height: auto;">
+                    </td>
+                    <td>Bs ${precio}</td>
+                    <td>Bs ${total.toFixed(2)}</td>
+                `;
+                tablaProductos.appendChild(nuevaFila);
+
+                // Actualizar los totales
+                actualizarTotales();
+
+                // Limpiar campos
+                document.getElementById('cantidad').value = '';
+                opcion.selectedIndex = 0; // Reiniciar selección
+                document.getElementById('descripcionProducto').innerText = '';
+                document.getElementById('precioProducto').innerText = '';
+                document.getElementById('imgProducto').src = '';
+                document.getElementById('imgProducto').style.display = 'none'; // Ocultar la imagen
+            } else {
+                alert('Por favor, seleccione un producto y una cantidad.');
+            }
+        }
+
+        function actualizarTotales() {
+            const iva = totalImporte * 0.13; // Calcular IVA (13%)
+            const subtotal = totalImporte; // El subtotal es el total de importes
+            const totalFinal = subtotal + iva; // Total final es subtotal más IVA
+
+            // Actualizar los elementos en la interfaz
+            document.getElementById('ivaTotal').innerText = `Bs ${iva.toFixed(2)}`;
+            document.getElementById('subtotalTotal').innerText = `Bs ${subtotal.toFixed(2)}`;
+            document.getElementById('totalFinal').innerText = `Bs ${totalFinal.toFixed(2)}`;
+        }
+
+        // Función para mostrar solo la fecha actual
+        function mostrarFecha() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateTime').innerText = now.toLocaleString('es-ES', options);
+        }
+
+        // Llamar a la función para mostrar la fecha al cargar la página
+        mostrarFecha();
+
+        // Función para guardar los datos del cliente
+        function guardarCliente() {
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const direccion = document.getElementById('direccion').value;
+
+            // Guardar datos en localStorage
+            localStorage.setItem('nombre', nombre);
+            localStorage.setItem('telefono', telefono);
+            localStorage.setItem('email', email);
+            localStorage.setItem('direccion', direccion);
+            localStorage.setItem('totalImporte', totalImporte);
+
+            // Redirigir a datos.html
+            window.location.href = 'datos.html';
+        }
+    </script>
+</body>
+</html>
